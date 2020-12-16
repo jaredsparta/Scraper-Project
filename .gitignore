@@ -1,4 +1,6 @@
-.vagrant
 *.log
-*/.bashhistory
-.venv
+.vagrant
+*/__pycache__
+*/.pytest_cache
+*/*/__pycache__
+*/*/*/__pycache__
