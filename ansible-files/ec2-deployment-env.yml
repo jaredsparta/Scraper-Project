@@ -1,27 +1,78 @@
 # Playbook that will create a deployment environment for our Python app
 ---
 
-- hosts: local
+- name: creates a security group and an instance for the python app
+  hosts: localhost
   gather_facts: yes
   vars:
-    aws_ssh_key: eng74.Jared.aws.key
-    region: eu-west-1
-    ami: ami-0dc8d444ee2a42d8a
-    description: A SG for the scraper instance
-  
+    vpc_level:
+      vpc_to_use: vpc-0b817ac1a77c6edb7
+      region: eu-west-1
+
+    sec_group_vars:
+      security_group_name: eng74.jared.scraper.SG
+      description: A SG for the scraper instance
+      jenkins_ip: 35.176.98.117/32
+
+    instance_vars:
+      instance_name: eng74-jared-scraper
+      aws_ssh_key: eng74.Jared.aws.key
+      ami: ami-0dc8d444ee2a42d8a
+      type: t2.micro
+      subnet_id: subnet-0a7af4fd8436af7f7
+
+
   tasks:
   - name: create a security group for the EC2 instance that will be created
     ec2_group:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
       state: present
-      description: "{{ description }}"
+      description: "{{ sec_group_vars['description'] }}"
+      vpc_id: "{{ vpc_level['vpc_to_use'] }}"
+      name: "{{ sec_group_vars['security_group_name'] }}"
+      region: "{{ vpc_level['region'] }}"
+      rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: "{{ personal_ip }}"
+          group_desc: SSH from Home
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: "{{ sec_group_vars['jenkins_ip'] }}"
+          group_desc: SSH from Jenkins server
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+          group_desc: For future use if there will be a frontend
+    register: sec_group_info
 
 
+  - name: set the security group id as a variable
+    set_fact:
+      sec_group_id: "{{ sec_group_info['group_id'] }}"
 
+
+  - debug:
+      msg: The SG id is "{{ sec_group_id }}"
 
   - name: create an EC2 instance
     ec2_instance:
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
-
+      vpc_subnet_id: "{{ instance_vars['subnet_id'] }}"
+      key_name: "{{ instance_vars['aws_ssh_key'] }}"
+      instance_type: "{{ instance_vars['type'] }}"
+      image_id: "{{ instance_vars['ami'] }}"
+      security_group: "{{ sec_group_id }}"
+      state: present
+      region: "{{ vpc_level['region'] }}"
+      network:
+        assign_public_ip: yes
+      tags:
+        Name: "{{ instance_vars['instance_name'] }}"
+      wait: yes
+      wait_timeout: 30

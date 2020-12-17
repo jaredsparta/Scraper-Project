@@ -1,3 +1,5 @@
+# These are the dependencies you will need to install on Python2 to run the playbooks
+
 boto
 boto3
 botocore
