@@ -6,5 +6,46 @@
   tasks:
   - name: creates a Downloads folder to ensure that the app creates the csv there
     file:
-      path: ~/Downloads/
+      path: ~/Downloads
       state: directory
+
+  - name: install nginx
+    apt:
+      name: nginx
+      state: present
+      update_cache: yes
+    become: true
+
+  - name: copy in the config-file for reverse proxy
+    become: true
+    copy:
+      dest: /etc/nginx/sites-available/reverse-proxy.conf
+      content: |
+        server {
+          listen 80;
+
+          location / {
+            proxy_pass         http://localhost:5000;
+          }
+        }
+
+  - name: create symlink from copied file to default
+    become: true
+    file:
+      src: /etc/nginx/sites-available/reverse-proxy.conf
+      dest: /etc/nginx/sites-enabled/default
+      state: link
+
+  - name: restart nginx for new config to take place
+    become: true
+    service:
+      name: nginx
+      state: restarted
+
+######################
+### App stuff
+  - name: copy the flask files onto the host
+    copy:
+      src: /home/vagrant/flask_files
+      dest: /home/ubuntu/
+    become: true

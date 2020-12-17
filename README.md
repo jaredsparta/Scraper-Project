@@ -53,7 +53,7 @@
 - We will make use of Ansible playbooks and run them on the vagrant machine as the controller
 
 - The AWS access and secret keys is sensitive information and will need to be secured properly. We can make use of Ansible vaults for such a task. The vault (which is really a password-protected YAML file) should be kept in `ansible-playbooks/group_vars/all/`
-    1. Create a vault using `ansible-vault create ~/ansible-files/group_vars/all/<name-of-vault>.yml`
+    1. Create a vault using `ansible-vault create ~/ansible-files/creating-infrastructure/group_vars/all/<name-of-vault>.yml`
         - I will name mine `aws_keys.yml`
         - Choose the password as you see fit
     2. Input the access and secret keys inside this file as well as your public IP address (for use in playbooks). It should look like the following
