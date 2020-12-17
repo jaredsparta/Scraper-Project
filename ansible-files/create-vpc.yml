@@ -1,0 +1,93 @@
+# Makes use of the ec2_vpc_net Ansible module
+# This playbook will create a VPC, a subnet inside it
+---
+- name: creates a VPC within AWS
+  hosts: localhost
+
+############################################################
+###### VARIABLES TO CHANGE
+  # Setting variables here so this playbook is re-usable and easy to configure for future use 
+  vars:
+    vpc_create_vars: 
+      name: eng74-jared-scraper-vpc
+      cidr_block: 155.15.0.0/16
+      region: eu-west-1
+    subnet_vars:
+      name: eng74-jared-scraper-subnet
+      cidr_block: 155.15.100.0/24
+    internet_gateway_vars:
+      name: eng74-jared-scraper-IGW
+    route_table_vars:
+      name: eng74-jared-scraper-route
+
+############################################################
+
+  tasks:
+  - name: create a VPC
+    ec2_vpc_net:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      name: "{{ vpc_create_vars['name'] }}"
+      cidr_block: "{{ vpc_create_vars['cidr_block'] }}"
+      region: "{{ vpc_create_vars['region'] }}"
+    register: vpc_info
+
+
+  - name: retrieves the VPC ID of the newly created VPC to use it's ID
+    set_fact:
+      vpc_id: "{{ vpc_info.vpc.id }}"
+
+  - debug:
+      msg: "{{ vpc_id }}"
+
+  - name: create a single public subnet
+    ec2_vpc_subnet:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      state: present
+      vpc_id: "{{ vpc_id }}"
+      cidr: "{{ subnet_vars['cidr_block'] }}"
+      tags:
+        Name: "{{ subnet_vars['name'] }}"
+      region: "{{ vpc_create_vars['region'] }}"
+    register: subnet_info
+
+      
+  - name: create internet gateway
+    ec2_vpc_igw:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ vpc_id }}"
+      state: present
+      tags:
+        Name: "{{ internet_gateway_vars['name'] }}"
+      region: "{{ vpc_create_vars['region'] }}"
+    register: igw_info
+
+
+  - name: sets the IGW ID and subnet ID as vars to use later 
+    set_fact:
+      igw_id: "{{ igw_info.gateway_id }}"
+      subnet_id: "{{ subnet_info.subnet.id }}"
+
+
+  - debug:
+      msg: 
+        - Subnet id is "{{ subnet_id }}"
+        - IGW id is "{{ igw_id }}"
+
+
+  - name: create route table for the subnet
+    ec2_vpc_route_table:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      vpc_id: "{{ vpc_id }}"
+      state: present
+      subnets:
+        - "{{ subnet_id }}"
+      routes:
+        - dest: 0.0.0.0/0
+          gateway_id: "{{ igw_id }}"
+      tags:
+        Name: "{{ route_table_vars['name'] }}"
+      region: "{{ vpc_create_vars['region'] }}"

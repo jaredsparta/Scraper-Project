@@ -1,0 +1,27 @@
+# Playbook that will create a deployment environment for our Python app
+---
+
+- hosts: local
+  gather_facts: yes
+  vars:
+    aws_ssh_key: eng74.Jared.aws.key
+    region: eu-west-1
+    ami: ami-0dc8d444ee2a42d8a
+    description: A SG for the scraper instance
+  
+  tasks:
+  - name: create a security group for the EC2 instance that will be created
+    ec2_group:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      state: present
+      description: "{{ description }}"
+
+
+
+
+  - name: create an EC2 instance
+    ec2_instance:
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+

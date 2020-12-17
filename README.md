@@ -1,5 +1,13 @@
 # Web scraping app using Python
 
+<br>
+
+## Pre-requisites
+- You will need the following software available on your machine:
+    - `Git`
+    - `Vagrant`
+
+
 ## Contents
 1. [Creating a development environment](https://github.com/jaredsparta/Scraper-Project#Dev-Environments)
 
@@ -27,4 +35,12 @@
 <br>
 
 ## Ansible to create the Deployment environment
+
+**Creating the VPC**
+- Things to note:
+    1. Ansible will use Python2 by default, you will need to download the necessary Python dependencies for modules to run using `python -m pip install` as opposed to `python3 -m pip install`
+
 - We will make use of Ansible playbooks and run them on the vagrant machine as the controller
+
+- The AWS access and secret keys is sensitive information and will need to be secured properly. We can make use of Ansible vaults for such a task. The vault (which is really a password-protected YAML file) should be kept in `ansible-playbooks/group_vars/all/`
+    1. Create a vault using `ansible-vault
