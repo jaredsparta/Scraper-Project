@@ -1,0 +1,10 @@
+# Will ensure the flask app is running on the host
+---
+- name: ensures the flask app is running on the host
+  hosts: scraper
+
+  tasks:
+  - name: creates a Downloads folder to ensure that the app creates the csv there
+    file:
+      path: ~/Downloads/
+      state: directory

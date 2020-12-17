@@ -4,4 +4,4 @@
 */.pytest_cache
 */*/__pycache__
 */*/*/__pycache__
-ansible-files/group_vars/all/aws_keys.yml
+ansible-files/creating-infrastructure/group_vars/all/aws_keys.yml

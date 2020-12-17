@@ -59,6 +59,7 @@
   - debug:
       msg: The SG id is "{{ sec_group_id }}"
 
+
   - name: create an EC2 instance
     ec2_instance:
       aws_access_key: "{{ aws_access_key }}"
