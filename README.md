@@ -25,3 +25,6 @@
     - This will allow the tests to run with the minimum number of dependencies and will avoid any packages that might ruin it
 
 <br>
+
+## Ansible to create the Deployment environment
+- We will make use of Ansible playbooks and run them on the vagrant machine as the controller
