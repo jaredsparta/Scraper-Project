@@ -74,7 +74,7 @@
 
 - In an effort to programmatically create infrastructure, we will make use of Ansible playbooks to create a VPC in which we will create an EC2 instance to deploy the app
 
-- The following Ansible modules were used to create this playbook:
+- The following Ansible modules were used to write `create-vpc.yml`:
     1. `ec2_vpc_net`
     2. `community.aws.ec2_vpc_nacl`
     3. `community.aws.ec2_vpc_igw`
@@ -87,16 +87,36 @@
 
 - Again, a more efficient method to creating instances is through Ansible. We will make use of playbooks to create EC2 instances within the newly-created VPC.
 
-- The following Ansible modules were used to create this playbook:
+- The following Ansible modules were used to write `ec2-deployment-env.yml`:
     1. `community.aws.ec2_instance`
     2. `amazon.aws.ec2_group`
+
+<br>
+
+**Creating the playbook that would prepare the environment to run the app**
+
+- Notes to be made:
+    1. There was some issues with `scp` when copying in files via a Jenkins job, mainly that there were permissions error (i.e. the user that Jenkins SSH'ed into had no permission to change them). This was fixed by adding a line in the playbook that explicitly states the owner of the files to be copied as `ubuntu` -- the user Jenkins SSH's into the instance as
+
+    ![](images/copy.jpg)
+
+- I wrote this playbook to give me a way to deploy the app on a newly-created EC2 instance. It makes use of the following Ansible modules:
+    1. `file`
+    2. `apt`
+    3. `copy`
+    4. `service`
+    5. `shell`
+    6. `pip`
+    7. `systemd`
+
+- The playbook will: install the necessary packages; install the pip dependencies; create a virtal environment for the app to run; create a new system service for the app; reconfigure nginx as a reverse-proxy; and finally start the app
 
 <br>
 
 [Back to top](https://github.com/jaredsparta/Scraper-Project#Contents)
 
 ## Getting the Flask app running
-- The main steps I took to ensure that the Flask front-end was implemented properly in a production environment was to do a few things:
+- The main steps I took to ensure that the Flask front-end was implemented properly in a production environment were to do the following:
     1. Use nginx as a reverse-proxy to port 5000 (where my Flask app was running)
     2. Use `gunicorn` as the server for Flask to run on
     3. Created a system service that would allow me to restart the Flask app, similar to how nginx is restarted etc.
@@ -105,7 +125,24 @@
 
 ![](images/service.jpg)
 
+<br>
+
+**Writing the actual Flask code**
+
+- Very little refactoring of code was done. For the ones that were refactored, nothing was removed but some functions were just added:
+    1. Created another python file that did the exact same thing as the app but without user input (so all it would do is insert a `.csv` file into the `~/Downloads` folder)
+    2. When it downloaded, I wrote a function that would read in the `.csv` and parse the information into a dictionary which I could parse again into an HTML file using Jinja2 syntax (exactly like variable substituting in Ansible playbooks)
+    3. Then the rest of the front-end was simply Flask syntax, do read the comments written in `app.py` for more
+
+- The main files that the Flask app uses are found in `DevOpsProject-ItJobsWatch-master`:
+    1. `app.py` is the actual Flask app itself
+    2. `templates/` are where the HTML files that Flask uses are kept
+    3. `static/` contains all the images used in these HTML files
+    4. `wsgi.py` is a Python script that imports the Flask app -- this was used to actually make the system service as shown above (this was preferable as changing the app meant I wouldn't have to reload the actual service file itself since `wsgi.py` remained unchanged)
+
 [Back to top](https://github.com/jaredsparta/Scraper-Project#Contents)
+
+<br>
 
 ---
 **Used:**
