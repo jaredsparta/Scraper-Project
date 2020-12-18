@@ -94,3 +94,10 @@
       name: flaskapp.service
       state: started
       enabled: yes
+
+  - name: restart the service
+    become: true
+    systemd:
+      name: flaskapp.service
+      state: restarted
+      enabled: yes

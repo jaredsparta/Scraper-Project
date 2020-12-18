@@ -51,7 +51,7 @@ def error():
 
 @app.errorhandler(404)
 def not_found(Exception):
-    return redirect(url_for(error))
+    return redirect("/error")
 
 
 if __name__ == "__main__":

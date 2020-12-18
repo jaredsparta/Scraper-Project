@@ -3,5 +3,5 @@ all:
     local:
        ansible_host: localhost
     scraper:
-      ansible_ssh_host: ubuntu@34.254.158.231
+      ansible_ssh_host: ubuntu@3.250.151.129
       ansible_ssh_private_key_file: /home/vagrant/.ssh/eng74Jaredawskey.pem
