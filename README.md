@@ -97,11 +97,11 @@
 
 ## Getting the Flask app running
 - The main steps I took to ensure that the Flask front-end was implemented properly in a production environment was to do a few things:
-    1. Use nginx as a reverse-proxy to port 5000 (default for Flask)
+    1. Use nginx as a reverse-proxy to port 5000 (where my Flask app was running)
     2. Use `gunicorn` as the server for Flask to run on
     3. Created a system service that would allow me to restart the Flask app, similar to how nginx is restarted etc.
 
-- The system service was created in `/etc/systemd/system/` and had the following input:
+- The system service was created in `/etc/systemd/system/` and had the following information:
 
 ![](images/service.jpg)
 
