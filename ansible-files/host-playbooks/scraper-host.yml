@@ -57,11 +57,13 @@
     copy:
       src: /home/vagrant/DevOpsProject-ItJobsWatch-master
       dest: /home/ubuntu/
+      owner: ubuntu
 
   - name: copies the requirements.txt for ease of provisioning the environment
     copy:
       src: /home/vagrant/DevOpsProject-ItJobsWatch-master/requirements.txt
       dest: /home/ubuntu/requirements.txt
+      owner: ubuntu
 
   - name: installs the necessary python packages to run
     become: true
