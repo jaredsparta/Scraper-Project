@@ -9,13 +9,15 @@
       vpc_to_use: vpc-0b817ac1a77c6edb7
       region: eu-west-1
 
+# We need to allow Jenkins within our SG to ensure that the CD pipeline works
     sec_group_vars:
       security_group_name: eng74.jared.scraper.SG
       description: A SG for the scraper instance
       jenkins_ip: 35.176.98.117/32
 
+# Here you can change the name of the instance among others
     instance_vars:
-      instance_name: eng74-jared-scraper
+      instance_name: eng74-jared-scraper-2
       aws_ssh_key: eng74.Jared.aws.key
       ami: ami-0dc8d444ee2a42d8a
       type: t2.micro

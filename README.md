@@ -63,6 +63,8 @@
     3. To see what's inside the file after exiting you can `ansible-vault view aws_keys.yml`
     4. To edit the keys again you can `ansible-vault edit aws_keys.yml`
 
+- Finally, to run playbooks with the use of ansible vaults, you can run `ansible-playbook <playbook-name>.yml --ask-vault-pass`
+
 <br>
 
 **Creating the VPC**
@@ -87,3 +89,7 @@
     2. `amazon.aws.ec2_group`
 
 <br>
+
+---
+**Used:**
+- [Creating system services](https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-gunicorn-and-nginx-on-ubuntu-18-04)

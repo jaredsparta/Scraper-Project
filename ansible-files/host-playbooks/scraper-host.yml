@@ -6,9 +6,11 @@
   tasks:
   - name: creates a Downloads folder to ensure that the app creates the csv there
     file:
-      path: ~/Downloads
+      path: /home/ubuntu/Downloads
       state: directory
 
+
+# Will use nginx as a reverse proxy for the app
   - name: install nginx
     become: true
     apt:
@@ -35,7 +37,7 @@
       path: /etc/nginx/sites-enabled/default
       state: absent
 
-  - name: create symlink from copied file to default
+  - name: create symlink from new file to default
     become: true
     file:
       src: /etc/nginx/sites-available/reverse-proxy.conf
@@ -53,12 +55,12 @@
   - name: copy the flask files onto the host
     become: true
     copy:
-      src: /home/vagrant/flask_files
+      src: /home/vagrant/DevOpsProject-ItJobsWatch-master
       dest: /home/ubuntu/
 
   - name: copies the requirements.txt for ease of provisioning the environment
     copy:
-      src: /home/vagrant/flask_files/requirements.txt
+      src: /home/vagrant/DevOpsProject-ItJobsWatch-master/requirements.txt
       dest: /home/ubuntu/requirements.txt
 
   - name: installs the necessary python packages to run
@@ -68,9 +70,27 @@
       state: present
       update_cache: yes
 
+  - name: create a venv
+    shell:
+      cmd: |
+        python3 -m venv venv
+        PATH=/home/ubuntu//venv/bin:$PATH
+
   - name: install requirements for app
     pip:
       requirements: /home/ubuntu/requirements.txt
       virtualenv: /home/ubuntu/venv
       virtualenv_python: python3.6
+
+  - name: creates a system service
+    become: true
+    copy:
+      src: /home/vagrant/ansible-files/setup-files/flaskapp.service
+      dest: /etc/systemd/system/flaskapp.service
     
+  - name: start the service
+    become: true
+    systemd:
+      name: flaskapp.service
+      state: started
+      enabled: yes

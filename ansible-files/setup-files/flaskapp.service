@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve myproject
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/DevOpsProject-ItJobsWatch-master
+Environment="PATH=/home/ubuntu/venv/bin:$PATH"
+ExecStart=/home/ubuntu/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
