@@ -1,5 +1,5 @@
 all:
   hosts:
     scraper:
-      ansible_ssh_host: ubuntu@52.210.195.140
+      ansible_ssh_host: ubuntu@52.212.226.164
       ansible_ssh_private_key_file: /home/vagrant/.ssh/eng74Jaredawskey.pem

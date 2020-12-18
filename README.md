@@ -57,7 +57,9 @@
         - I will name mine `aws_keys.yml`
         - Choose the password as you see fit
     2. Input the access and secret keys inside this file as well as your public IP address (for use in playbooks). It should look like the following
+
     ![](images/vault.jpg)
+    
     3. To see what's inside the file after exiting you can `ansible-vault view aws_keys.yml`
     4. To edit the keys again you can `ansible-vault edit aws_keys.yml`
 

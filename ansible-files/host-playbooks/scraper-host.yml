@@ -10,13 +10,13 @@
       state: directory
 
   - name: install nginx
+    become: true
     apt:
       name: nginx
       state: present
       update_cache: yes
-    become: true
 
-  - name: copy in the config-file for reverse proxy
+  - name: create a config file for nginx
     become: true
     copy:
       dest: /etc/nginx/sites-available/reverse-proxy.conf
@@ -25,15 +25,21 @@
           listen 80;
 
           location / {
-            proxy_pass         http://localhost:5000;
+            proxy_pass      http://localhost:5000;
           }
         }
+
+  - name: delete the default file in sites-enabled
+    become: true
+    file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
 
   - name: create symlink from copied file to default
     become: true
     file:
       src: /etc/nginx/sites-available/reverse-proxy.conf
-      dest: /etc/nginx/sites-enabled/default
+      dest: /etc/nginx/sites-enabled/reverse-proxy.conf
       state: link
 
   - name: restart nginx for new config to take place
@@ -45,7 +51,26 @@
 ######################
 ### App stuff
   - name: copy the flask files onto the host
+    become: true
     copy:
       src: /home/vagrant/flask_files
       dest: /home/ubuntu/
+
+  - name: copies the requirements.txt for ease of provisioning the environment
+    copy:
+      src: /home/vagrant/flask_files/requirements.txt
+      dest: /home/ubuntu/requirements.txt
+
+  - name: installs the necessary python packages to run
     become: true
+    apt:
+      name: python3-venv
+      state: present
+      update_cache: yes
+
+  - name: install requirements for app
+    pip:
+      requirements: /home/ubuntu/requirements.txt
+      virtualenv: /home/ubuntu/venv
+      virtualenv_python: python3.6
+    
