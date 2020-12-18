@@ -48,9 +48,10 @@ def no_headers():
 def error():
     return render_template("error.html")
 
+
 @app.errorhandler(404)
 def not_found(Exception):
-    return redirect("/error"), 404
+    return redirect(url_for(error))
 
 
 if __name__ == "__main__":

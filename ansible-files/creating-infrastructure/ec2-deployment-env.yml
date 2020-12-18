@@ -17,7 +17,7 @@
 
 # Here you can change the name of the instance among others
     instance_vars:
-      instance_name: eng74-jared-scraper-2
+      instance_name: eng74-jared-scraper-app
       aws_ssh_key: eng74.Jared.aws.key
       ami: ami-0dc8d444ee2a42d8a
       type: t2.micro

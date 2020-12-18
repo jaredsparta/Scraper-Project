@@ -14,8 +14,9 @@
 
 ## Contents
 1. [Creating a development environment](https://github.com/jaredsparta/Scraper-Project#Dev-Environments)
-2. [CI/CD](https://github.com/jaredsparta/Scraper-Project#CI/CD-or-Continuous-Integration-and-Deployment)
+2. [CI/CD](https://github.com/jaredsparta/Scraper-Project#CICD-or-Continuous-Integration-and-Deployment)
 3. [Ansible](https://github.com/jaredsparta/Scraper-Project#Ansible-to-create-the-Deployment-environment)
+4. [Flask front-end](https://github.com/jaredsparta/Scraper-Project#Getting-the-Flask-app-running)
 
 <br>
 
@@ -27,6 +28,8 @@
 
 - All the necessary provisioning is achieved using `setup-files/provision-ansible.sh` which runs when you `vagrant up` using the Vagrantfile given
     - If you want to install more dependencies, please do append this provision file how you see fit
+
+- In some cases, the provision file may fail to install the necessary dependencies for Ansible, in such a case just run the command `python -m pip install -r ~/ansible-files/setup-files/requirements.txt` within the VM
 
 <br>
 
@@ -82,13 +85,27 @@
 
 **Creating the deployment environment EC2 instance**
 
-- Again, a more efficient method to creating instances is through Ansible. We will make use of playbooks to create EC2 instances within the newly-created 
+- Again, a more efficient method to creating instances is through Ansible. We will make use of playbooks to create EC2 instances within the newly-created VPC.
 
 - The following Ansible modules were used to create this playbook:
     1. `community.aws.ec2_instance`
     2. `amazon.aws.ec2_group`
 
 <br>
+
+[Back to top](https://github.com/jaredsparta/Scraper-Project#Contents)
+
+## Getting the Flask app running
+- The main steps I took to ensure that the Flask front-end was implemented properly in a production environment was to do a few things:
+    1. Use nginx as a reverse-proxy to port 5000 (default for Flask)
+    2. Use `gunicorn` as the server for Flask to run on
+    3. Created a system service that would allow me to restart the Flask app, similar to how nginx is restarted etc.
+
+- The system service was created in `/etc/systemd/system/` and had the following input:
+
+![](images/service.jpg)
+
+[Back to top](https://github.com/jaredsparta/Scraper-Project#Contents)
 
 ---
 **Used:**
