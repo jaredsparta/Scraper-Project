@@ -2,34 +2,55 @@
 
 - A full project that will create a development, testing and deployment environment for the app found in `DevOpsProject-ItJobsWatch-master`
 
-- All the required infrastructure is created through Ansible playbooks
+- The main folders:
+    1. `ansible-files` contains Ansible playbooks for the creating of VPCs and EC2 instances as well as for the provisioning of EC2 instances to run the app
+    2. `vagrant-setup` contains the provision file for the Vagrant machine
+    3. `DevOpsProject-ItJobsWatch-master` contains the main web scraper as well as the Flask app and HTML files used to create a front-end
 
 <br>
 
 ## Pre-requisites
-- You will need the following software available on your machine:
+- You will need the following available on your machine:
     - `Git`
     - `Vagrant`
 
+<br>
 
 ## Contents
+0. [Overview](https://github.com/jaredsparta/Scraper-Project#Overview) 
 1. [Creating a development environment](https://github.com/jaredsparta/Scraper-Project#Dev-Environments)
 2. [CI/CD](https://github.com/jaredsparta/Scraper-Project#CICD-or-Continuous-Integration-and-Deployment)
 3. [Ansible](https://github.com/jaredsparta/Scraper-Project#Ansible-to-create-the-Deployment-environment)
-4. [Flask front-end](https://github.com/jaredsparta/Scraper-Project#Getting-the-Flask-app-running)
+4. [Flask app](https://github.com/jaredsparta/Scraper-Project#Getting-the-Flask-app-running)
+
+<br>
+
+## Overview
+
+- The Vagrant machine will be the development environment and act as the Ansible controller
+
+- The Ansible playbooks will be used to create the initial infrastructure:
+    1. Prepare the access and secret keys for AWS as mentioned in section 3
+    2. Run `ansible-files/creating-infrastructure/create-vpc.yml` to create the VPC and subnet
+    3. Collect the VPC and subnet ID and input these values into the variables in `ansible-files/creating-infrastructure/ec2-deployment-env.yml` as well as configuring it to your own circumstances and then run it to create an EC2 instance
+    4. Collect the instance ID and input it into `ansible-files\setup-files\hosts` 
+    5. Find a way to bring your AWS instance key and put the file into `/home/vagrant/.ssh/` and put this path into the hosts
+    6. Lastly, configure `ansible-files\host-playbooks\scraper-host.yml` and run it to deploy the app
+
+- Create the Jenkins CI/CD pipeline once the instance has been created
 
 <br>
 
 ## Dev Environments
-- We want a development environment that can be used both as an Ansible controller and 
-    - Within `setup-files` there is a `Vagrantfile` that can be used to create a provisioned Ubuntu VM
-    - It is advised to use a Python virtual environment and you can create one using the Python package `venv` with `python3 -m venv <name-of-venv>`
+- We want a development environment that can be used as an Ansible controller and a way to test code in:
+    - The `Vagrantfile` present can be used for such a task. It is configured in such a way so that the Ansible playbooks and the app are present on it. This way, one can edit the files on a text editor on their machine and test it manually inside the Ubuntu VM
+    - It is advised to use a Python virtual environment to keep the package dependencies consistent throughout environments. One can create a virtual environment using the Python package `venv` with `python3 -m venv <name-of-venv>`
     - To install the necessary Python packages within the virtual environment, you can simply run `python3 -m pip install -r requirements.txt`
 
-- All the necessary provisioning is achieved using `setup-files/provision-ansible.sh` which runs when you `vagrant up` using the Vagrantfile given
-    - If you want to install more dependencies, please do append this provision file how you see fit
+- All the necessary provisioning is achieved using `vagrant-setup/provision-ansible.sh` which runs when you `vagrant up` using the Vagrantfile given
+    - If you want to change the dependencies, do change the provision file as you see fit
 
-- In some cases, the provision file may fail to install the necessary dependencies for Ansible, in such a case just run the command `python -m pip install -r ~/ansible-files/setup-files/requirements.txt` within the VM
+- In some cases, the provision file may fail to install the necessary dependencies for Ansible so you will have to run the command `python -m pip install -r ~/ansible-files/setup-files/requirements.txt` within the VM
 
 <br>
 
@@ -40,8 +61,15 @@
 - We will make use of Jenkins to automate the building, testing and deploying of pushed code into an EC2 instance.
 
 - To ensure that the Python environment is standardised throughout, we will make use of a virtual environment created through the Python package `venv`
-    - Within this environment, we can install all the necessary dependencies through `python3 -m pip install -r setup-files/requirements.txt`
-    - This will allow the tests to run with the minimum number of dependencies and will avoid any packages that might ruin it
+    - Within this environment, we can install all the necessary dependencies of the app through `python3 -m pip install -r setup-files/requirements.txt`
+    - The testing of the code will be done in a `venv` as it allows the tests to run with the minimum number of dependencies and will avoid any conflicting packages that might cause an error
+
+<br>
+
+**What the pipeline does**
+- There are two branches in the repository: the master branch and a development branch. This would mirror a real production environment where different developers will be working on different branches.
+
+- When new changes are pushed from the development branch, there will be a trigger to a Jenkins job that will build and test the code. If it passes, the pushed code will be merged with master and pushed to GitHub. The final job will deploy the code onto an EC2 instance that will be running already
 
 <br>
 
@@ -116,7 +144,7 @@
 [Back to top](https://github.com/jaredsparta/Scraper-Project#Contents)
 
 ## Getting the Flask app running
-- The main steps I took to ensure that the Flask front-end was implemented properly in a production environment were to do the following:
+- The main steps I took to ensure that the Flask app was implemented properly in a production environment were to do the following:
     1. Use nginx as a reverse-proxy to port 5000 (where my Flask app was running)
     2. Use `gunicorn` as the server for Flask to run on
     3. Created a system service that would allow me to restart the Flask app, similar to how nginx is restarted etc.
@@ -140,9 +168,9 @@
     3. `static/` contains all the images used in these HTML files
     4. `wsgi.py` is a Python script that imports the Flask app -- this was used to actually make the system service as shown above (this was preferable as changing the app meant I wouldn't have to reload the actual service file itself since `wsgi.py` remained unchanged)
 
-[Back to top](https://github.com/jaredsparta/Scraper-Project#Contents)
-
 <br>
+
+[Back to top](https://github.com/jaredsparta/Scraper-Project#Contents)
 
 ---
 **Used:**
